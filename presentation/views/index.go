@@ -6,8 +6,9 @@ import (
 )
 
 const (
-	rowPartial string = "task_row"
-	index      string = "index"
+	resultsPartial string = "task_results"
+	rowPartial     string = "task_row"
+	indexPartial   string = "index"
 )
 
 type IndexView struct {
@@ -21,9 +22,13 @@ func NewIndexView(tmplEngine *template.Template) *IndexView {
 }
 
 func (iv IndexView) Execute(w io.Writer, data interface{}) error {
-	return iv.tmplEngine.ExecuteTemplate(w, index, data)
+	return iv.tmplEngine.ExecuteTemplate(w, indexPartial, data)
 }
 
 func (iv IndexView) ExecuteRow(w io.Writer, data interface{}) error {
 	return iv.tmplEngine.ExecuteTemplate(w, rowPartial, data)
+}
+
+func (iv IndexView) ExecuteResults(w io.Writer, data interface{}) error {
+	return iv.tmplEngine.ExecuteTemplate(w, resultsPartial, data)
 }
