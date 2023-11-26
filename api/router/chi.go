@@ -52,11 +52,10 @@ func (ro router) Build() *chi.Mux {
 	router.Use(rm.RecoveryMiddleware, lm.LoggerMiddleware)
 
 	router.Get("/", indexController.Index)
-	router.Post("/", indexController.Filter)
+	router.Post("/tasks/filter", indexController.Filter)
 
-	router.Post("/", taskController.Create)
-	router.Put("/{id:int}", taskController.UpdateEndAt)
-	router.Patch("/{id:int}", taskController.UpdateComplete)
+	router.Post("/tasks", taskController.Create)
+	router.Put("/tasks", taskController.Update)
 
 	return router
 }
