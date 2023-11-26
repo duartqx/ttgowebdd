@@ -1,0 +1,41 @@
+{{ define "filter_form" }}
+  <form
+    hx-post="/tasks/filter"
+    hx-ext="json-enc"
+    hx-target="#tableResults"
+    hx-swap="outerHTML"
+  >
+    <div class="mb-3">
+      <label for="tag" class="form-label text-secondary">Tag</label>
+      <input type="text" name="tag" class="form-control" />
+    </div>
+    <div class="mb-3">
+      <label for="completed" class="form-label text-secondary">Completed</label>
+      <select name="completed" class="form-select">
+        <option value="0">Ignore</option>
+        <option value="1">Completed</option>
+        <option value="2">Not Completed</option>
+      </select>
+    </div>
+    <div class="mb-3 bg-body-tertiary p-2 rounded">
+      <label class="form-label text-secondary">Start At</label>
+      <input type="date" name="from_start_at" class="form-control mb-3" />
+      <input type="date" name="to_start_at" class="form-control" />
+    </div>
+    <div class="mb-3 bg-body-tertiary p-2 rounded">
+      <label class="form-label text-secondary">End At</label>
+      <input type="date" name="from_end_at" class="form-control mb-3" />
+      <input type="date" name="to_end_at" class="form-control" />
+    </div>
+    <div class="d-flex">
+      <button class="btn btn-primary">Filter</button>
+      <button
+        hx-get="/"
+        hx-target="body"
+        class="btn btn-outline-warning ms-auto"
+      >
+        Reset
+      </button>
+    </div>
+  </form>
+{{ end }}

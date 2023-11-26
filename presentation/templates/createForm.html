@@ -1,0 +1,28 @@
+{{ define "create_form" }}
+  <form
+    hx-post="/tasks"
+    hx-ext="json-enc"
+    hx-target="#tableResultsBody"
+    hx-swap="beforeend"
+    hx-on::after-request="this.reset()"
+  >
+    <div class="mb-3">
+      <label for="tag" class="form-label text-secondary">Tag</label>
+      <input type="text" name="tag" class="form-control" />
+    </div>
+    <div class="mb-3">
+      <label class="form-label text-secondary">Description</label>
+      <input type="text" name="description" class="form-control" />
+    </div>
+    <div class="d-flex">
+      <button class="btn btn-primary">Create</button>
+      <button
+        hx-get="/"
+        hx-target="body"
+        class="btn btn-outline-warning ms-auto"
+      >
+        Reset
+      </button>
+    </div>
+  </form>
+{{ end }}

@@ -16,7 +16,10 @@ func main() {
 	mux := router.NewRouterBuilder().
 		SetDb(db).
 		SetTemplates(&[]string{
+			"./presentation/templates/createForm.html",
+			"./presentation/templates/filterForm.html",
 			"./presentation/templates/index.html",
+			"./presentation/templates/taskTable.html",
 		}).
 		Build()
 
