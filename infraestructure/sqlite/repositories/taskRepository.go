@@ -98,16 +98,16 @@ func (tr TaskRepository) FindByTag(tag string) (m.Task, error) {
 func (tr TaskRepository) Create(task m.Task) error {
 	var (
 		taskId  int64
-		startAt *time.Time
+		startAt time.Time
 	)
 	if err := tr.db.QueryRow(
 		"INSERT INTO tasks (tag, description) VALUES (?, ?) RETURNING id, start_at",
 		task.GetTag(), task.GetDescription(),
-	).Scan(&taskId, startAt); err != nil {
+	).Scan(&taskId, &startAt); err != nil {
 		return err
 	}
 
-	task.SetId(taskId).SetStartAt(startAt)
+	task.SetId(taskId).SetStartAt(&startAt)
 
 	return nil
 }
