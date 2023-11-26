@@ -17,6 +17,7 @@
     />
     <script src="https://unpkg.com/htmx.org@1.9.9"></script>
     <script src="https://unpkg.com/htmx.org/dist/ext/json-enc.js"></script>
+    <script src="https://unpkg.com/alpinejs" defer></script>
   </head>
   <body>
     <main class="container">
@@ -25,47 +26,31 @@
       </div>
       <div class="col-sm-12">
         <div class="row">
-          <section id="filterSection" class="col-sm-3">
-            <form
-              hx-post="/tasks/filter"
-              hx-ext="json-enc"
-              hx-target="#tableResults"
-              hx-swap="outerHTML"
-            >
-              <div class="mb-3">
-                <label for="tag" class="form-label text-secondary">Tag</label>
-                <input type="text" name="tag" class="form-control" />
-              </div>
-              <div class="mb-3">
-                <label for="completed" class="form-label text-secondary">Completed</label>
-                <select name="completed" class="form-select">
-                  <option value="0">Ignore</option>
-                  <option value="1">Completed</option>
-                  <option value="2">Not Completed</option>
-                </select>
-              </div>
-              <div class="mb-3 bg-body-tertiary p-2 rounded">
-                <label class="form-label text-secondary">Start At</label>
-                <input type="date" name="from_start_at" class="form-control mb-3" />
-                <input type="date" name="to_start_at" class="form-control" />
-              </div>
-              <div class="mb-3 bg-body-tertiary p-2 rounded">
-                <label class="form-label text-secondary">End At</label>
-                <input type="date" name="from_end_at" class="form-control mb-3" />
-                <input type="date" name="to_end_at" class="form-control" />
-              </div>
-              <div class="d-flex">
-                <button class="btn btn-primary">Filter</button>
-                <button
-                  hx-get="/"
-                  hx-target="body"
-                  class="btn btn-outline-warning ms-auto"
-                >
-                  Reset
-                </button>
-              </div>
-            </form>
-          </section>
+          <div class="col-sm-3" x-data="{
+              filter: true,
+              activate(target, deactivateFromSelector) {
+                htmx.addClass(target, 'active');
+                htmx.removeClass(htmx.find(deactivateFromSelector), 'active');
+              },
+            }">
+            <!-- prettier-ignore -->
+            <ul class="nav nav-tabs mb-3">
+              <li class="nav-item" role="tab">
+                <a href="#" class="nav-link active" id="filterFormLink" @click="activate($event.target, '#createFormLink'); filter = true">Filter</a>
+              </li>
+              <li class="nav-item" role="tab">
+                <a href="#" class="nav-link" id="createFormLink" @click="activate($event.target, '#filterFormLink'); filter = false">Create</a>
+              </li>
+            </ul>
+            <section id="formSections">
+              <section id="filterSection" x-show="filter">
+                {{ template "filter_form" }}
+              </section>
+              <section id="createSection" x-show="!filter">
+                {{ template "create_form" }}
+              </section>
+            </section>
+          </div>
           <!-- prettier-ignore -->
           <section id="tableSection" class="col-sm-9" style="height: 70vh; overflow-y: 'scroll'">
             {{ template "task_results" . }}
@@ -82,14 +67,18 @@
 {{ define "task_results" }}
 <!-- prettier-ignore-end-->
 <table class="table table-striped table-hover" id="tableResults">
-  <tr>
-    <td class="col-sm-1 text-center">Tag</td>
-    <td>Description</td>
-    <td>Started at</td>
-    <td>Finished in</td>
-    <td colspan="2" class="text-center">Update</td>
-  </tr>
-  {{ range . }} {{ template "task_row" . }} {{ end }}
+  <thead>
+    <tr>
+      <td class="col-sm-1 text-center">Tag</td>
+      <td>Description</td>
+      <td>Started at</td>
+      <td>Finished in</td>
+      <td colspan="2" class="text-center">Update</td>
+    </tr>
+  </thead>
+  <tbody id="tableResultsBody">
+    {{ range . }} {{ template "task_row" . }} {{ end }}
+  </tbody>
 </table>
 {{ end }}
 
@@ -135,4 +124,75 @@
     </button>
   </td>
 </tr>
+{{ end }}
+
+{{ define "filter_form" }}
+  <form
+    hx-post="/tasks/filter"
+    hx-ext="json-enc"
+    hx-target="#tableResultsBody"
+    hx-swap="outerHTML"
+  >
+    <div class="mb-3">
+      <label for="tag" class="form-label text-secondary">Tag</label>
+      <input type="text" name="tag" class="form-control" />
+    </div>
+    <div class="mb-3">
+      <label for="completed" class="form-label text-secondary">Completed</label>
+      <select name="completed" class="form-select">
+        <option value="0">Ignore</option>
+        <option value="1">Completed</option>
+        <option value="2">Not Completed</option>
+      </select>
+    </div>
+    <div class="mb-3 bg-body-tertiary p-2 rounded">
+      <label class="form-label text-secondary">Start At</label>
+      <input type="date" name="from_start_at" class="form-control mb-3" />
+      <input type="date" name="to_start_at" class="form-control" />
+    </div>
+    <div class="mb-3 bg-body-tertiary p-2 rounded">
+      <label class="form-label text-secondary">End At</label>
+      <input type="date" name="from_end_at" class="form-control mb-3" />
+      <input type="date" name="to_end_at" class="form-control" />
+    </div>
+    <div class="d-flex">
+      <button class="btn btn-primary">Filter</button>
+      <button
+        hx-get="/"
+        hx-target="body"
+        class="btn btn-outline-warning ms-auto"
+      >
+        Reset
+      </button>
+    </div>
+  </form>
+{{ end }}
+
+{{ define "create_form" }}
+  <form
+    hx-post="/tasks"
+    hx-ext="json-enc"
+    hx-target="#tableResultsBody"
+    hx-swap="beforeend"
+    hx-on::after-request="this.reset()"
+  >
+    <div class="mb-3">
+      <label for="tag" class="form-label text-secondary">Tag</label>
+      <input type="text" name="tag" class="form-control" />
+    </div>
+    <div class="mb-3">
+      <label class="form-label text-secondary">Description</label>
+      <input type="text" name="description" class="form-control" />
+    </div>
+    <div class="d-flex">
+      <button class="btn btn-primary">Create</button>
+      <button
+        hx-get="/"
+        hx-target="body"
+        class="btn btn-outline-warning ms-auto"
+      >
+        Reset
+      </button>
+    </div>
+  </form>
 {{ end }}
