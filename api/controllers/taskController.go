@@ -3,9 +3,6 @@ package controllers
 import (
 	"encoding/json"
 	"net/http"
-	"strconv"
-
-	"github.com/go-chi/chi/v5"
 
 	s "github.com/duartqx/ttgowebdd/application/services"
 	v "github.com/duartqx/ttgowebdd/presentation/views"
@@ -28,52 +25,9 @@ func (tc TaskController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case http.MethodPost:
 		tc.Create(w, r)
 	case http.MethodPut:
-		tc.UpdateEndAt(w, r)
-	case http.MethodPatch:
-		tc.UpdateComplete(w, r)
+		tc.Update(w, r)
 	default:
 		w.WriteHeader(http.StatusMethodNotAllowed)
-	}
-}
-
-func (tc TaskController) getId(r *http.Request) (int, error) {
-	id, err := strconv.Atoi(chi.URLParam(r, "id"))
-	if err != nil {
-		return 0, err
-	}
-	return id, nil
-}
-
-func (tc TaskController) UpdateEndAt(w http.ResponseWriter, r *http.Request) {
-
-	id, err := tc.getId(r)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	task, err := tc.service.UpdateEndAt(id)
-	if err != nil {
-		panic(err)
-	}
-	if err := tc.view.ExecuteRow(w, task); err != nil {
-		panic(err)
-	}
-}
-
-func (tc TaskController) UpdateComplete(w http.ResponseWriter, r *http.Request) {
-	id, err := tc.getId(r)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	task, err := tc.service.UpdateComplete(id)
-	if err != nil {
-		panic(err)
-	}
-	if err := tc.view.ExecuteRow(w, task); err != nil {
-		panic(err)
 	}
 }
 
