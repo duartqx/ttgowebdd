@@ -35,17 +35,23 @@ func (tc TaskController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (tc TaskController) getId(r *http.Request) int {
+func (tc TaskController) getId(r *http.Request) (int, error) {
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
-		panic(err)
+		return 0, err
 	}
-	return id
+	return id, nil
 }
 
 func (tc TaskController) UpdateEndAt(w http.ResponseWriter, r *http.Request) {
 
-	task, err := tc.service.UpdateEndAt(tc.getId(r))
+	id, err := tc.getId(r)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	task, err := tc.service.UpdateEndAt(id)
 	if err != nil {
 		panic(err)
 	}
@@ -55,7 +61,13 @@ func (tc TaskController) UpdateEndAt(w http.ResponseWriter, r *http.Request) {
 }
 
 func (tc TaskController) UpdateComplete(w http.ResponseWriter, r *http.Request) {
-	task, err := tc.service.UpdateComplete(tc.getId(r))
+	id, err := tc.getId(r)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	task, err := tc.service.UpdateComplete(id)
 	if err != nil {
 		panic(err)
 	}
@@ -67,7 +79,8 @@ func (tc TaskController) UpdateComplete(w http.ResponseWriter, r *http.Request) 
 func (tc TaskController) Create(w http.ResponseWriter, r *http.Request) {
 	task, err := tc.service.Create(r.Body)
 	if err != nil {
-		panic(err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 	if err := tc.view.ExecuteRow(w, task); err != nil {
 		panic(err)
