@@ -19,30 +19,107 @@
     <script src="https://unpkg.com/htmx.org/dist/ext/json-enc.js"></script>
   </head>
   <body>
-    <div class="container-fluid">
-      <table class="table table-striped table-hover">
-        <tr>
-          <td>Tag</td>
-          <td>Started at</td>
-          <td>Finished in</td>
-          <td>Description</td>
-          <td>Complete</td>
-        </tr>
-        {{ range . }} {{ template "task_row" . }} {{ end }}
-      </table>
-    </div>
+    <main class="container">
+      <div class="my-4 py-4">
+        <p class="lead text-center text-secondary">ttgowebdd</p>
+      </div>
+      <div class="col-sm-12">
+        <div class="row">
+          <section id="filterSection" class="col-sm-3">
+            <form
+              hx-post="/tasks/filter"
+              hx-ext="json-enc"
+              hx-target="#tableResults"
+              hx-swap="outerHTML"
+            >
+              <div class="mb-3">
+                <label for="tag" class="form-label text-secondary">Tag</label>
+                <input type="text" name="tag" class="form-control" />
+              </div>
+              <div class="mb-3">
+                <label for="completed" class="form-label text-secondary">Completed</label>
+                <select name="completed" class="form-select">
+                  <option value="0">Ignore</option>
+                  <option value="1">Completed</option>
+                  <option value="2">Not Completed</option>
+                </select>
+              </div>
+              <div class="mb-3 bg-body-tertiary p-2 rounded">
+                <label class="form-label text-secondary">Start At</label>
+                <input type="date" name="from_start_at" class="form-control mb-3" />
+                <input type="date" name="to_start_at" class="form-control" />
+              </div>
+              <div class="mb-3 bg-body-tertiary p-2 rounded">
+                <label class="form-label text-secondary">End At</label>
+                <input type="date" name="from_end_at" class="form-control mb-3" />
+                <input type="date" name="to_end_at" class="form-control" />
+              </div>
+              <div class="d-flex">
+                <button class="btn btn-primary">Filter</button>
+                <button
+                  hx-get="/"
+                  hx-target="body"
+                  class="btn btn-outline-warning ms-auto"
+                >
+                  Reset
+                </button>
+              </div>
+            </form>
+          </section>
+          <!-- prettier-ignore -->
+          <section id="tableSection" class="col-sm-9" style="height: 70vh; overflow-y: 'scroll'">
+            {{ template "task_results" . }}
+          </section>
+        </div>
+      </div>
+    </main>
   </body>
 </html>
 
-{{ end}} {{ define "task_row" }}
-<tr id="task_{{ .GetId }}">
-  <td>{{ .GetTag }}</td>
-  <td>{{ .GetStartAt.Format "2006-01-02 15:04:05" }}</td>
-  <td>
-    {{ if .GetEndAt }} {{ .GetEndAt.Format "2006-01-02 15:04:05" }} {{ else }}
-    0000-00-00 00:00:00 {{ end }}
-  </td>
+{{ end}}
+
+<!-- prettier-ignore-start -->
+{{ define "task_results" }}
+<!-- prettier-ignore-end-->
+<table class="table table-striped table-hover" id="tableResults">
+  <tr>
+    <td class="col-sm-1 text-center">Tag</td>
+    <td>Description</td>
+    <td>Started at</td>
+    <td>Finished in</td>
+    <td colspan="2" class="text-center">Update</td>
+  </tr>
+  {{ range . }} {{ template "task_row" . }} {{ end }}
+</table>
+{{ end }}
+
+<!-- prettier-ignore-start -->
+{{ define "task_row" }}
+<!-- prettier-ignore-end-->
+<tr>
+  <td class="col-sm-1">{{ .GetTag }}</td>
   <td>{{ .GetDescription }}</td>
+  <td>{{ .GetStartAt.Format "2006-01-02 15:04:05" }}</td>
+  <!-- prettier-ignore -->
+  <td>
+    {{ if .GetEndAt }}
+      {{ .GetEndAt.Format "2006-01-02 15:04:05" }}
+    {{ else }}
+      0000-00-00 00:00:00
+    {{ end }}
+  </td>
+  <td>
+    <button
+      hx-put="/tasks"
+      hx-ext="json-enc"
+      hx-vals='{ "operation": "end", "id": {{ .GetId }} }'
+      hx-target="closest tr"
+      hx-swap="outerHTML"
+      class="btn btn-sm btn-outline-info"
+    >
+      <i class="bi bi-arrow-clockwise"></i>
+    </button>
+  </td>
   <td>
     <button
       hx-put="/tasks"
