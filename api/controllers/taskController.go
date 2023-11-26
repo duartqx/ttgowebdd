@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"encoding/json"
 	"net/http"
 	"strconv"
 
@@ -68,6 +69,44 @@ func (tc TaskController) UpdateComplete(w http.ResponseWriter, r *http.Request) 
 	}
 
 	task, err := tc.service.UpdateComplete(id)
+	if err != nil {
+		panic(err)
+	}
+	if err := tc.view.ExecuteRow(w, task); err != nil {
+		panic(err)
+	}
+}
+
+func (tc TaskController) Update(w http.ResponseWriter, r *http.Request) {
+	const (
+		updEnd      string = "end"
+		updComplete        = "complete"
+	)
+
+	putBody := struct {
+		Id        int    `json:"id"`
+		Operation string `json:"operation"`
+	}{}
+
+	if err := json.NewDecoder(r.Body).Decode(&putBody); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	var (
+		task interface{}
+		err  error
+	)
+
+	switch putBody.Operation {
+	case updEnd:
+		task, err = tc.service.UpdateEndAt(putBody.Id)
+	case updComplete:
+		task, err = tc.service.UpdateComplete(putBody.Id)
+	default:
+		w.WriteHeader(http.StatusBadRequest)
+	}
+
 	if err != nil {
 		panic(err)
 	}
