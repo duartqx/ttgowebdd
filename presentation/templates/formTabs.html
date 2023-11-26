@@ -1,0 +1,27 @@
+{{ define "form_tabs" }}
+  <div x-data="{
+      filter: true,
+      activate(target, deactivateFromSelector) {
+        htmx.addClass(target, 'active');
+        htmx.removeClass(htmx.find(deactivateFromSelector), 'active');
+      },
+    }">
+    <!-- prettier-ignore -->
+    <ul class="nav nav-tabs mb-3">
+      <li class="nav-item" role="tab">
+        <a href="#" class="nav-link active" id="filterFormLink" @click="activate($event.target, '#createFormLink'); filter = true">Filter</a>
+      </li>
+      <li class="nav-item" role="tab">
+        <a href="#" class="nav-link" id="createFormLink" @click="activate($event.target, '#filterFormLink'); filter = false">Create</a>
+      </li>
+    </ul>
+    <section id="formSections">
+      <section id="filterSection" x-show="filter">
+        {{ template "filter_form" }}
+      </section>
+      <section id="createSection" x-show="!filter">
+        {{ template "create_form" }}
+      </section>
+    </section>
+  </div>
+{{ end }}

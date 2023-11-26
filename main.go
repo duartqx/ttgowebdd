@@ -18,6 +18,7 @@ func main() {
 		SetTemplates(&[]string{
 			"./presentation/templates/createForm.html",
 			"./presentation/templates/filterForm.html",
+			"./presentation/templates/formTabs.html",
 			"./presentation/templates/index.html",
 			"./presentation/templates/taskTable.html",
 		}).
