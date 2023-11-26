@@ -170,8 +170,8 @@ func (tr TaskRepository) UpdateEndAt(task m.Task) error {
 func (tr TaskRepository) UpdateEndAtById(id int) (m.Task, error) {
 	task := tr.getModel()
 	if err := tr.db.Get(
-		&task,
-		"UPDATE tasks SET end_at = ? WHERE id = ? RETURNING *", time.Now(), task.GetId(),
+		task,
+		"UPDATE tasks SET end_at = ? WHERE id = ? RETURNING *", time.Now(), id,
 	); err != nil {
 		return nil, err
 	}
