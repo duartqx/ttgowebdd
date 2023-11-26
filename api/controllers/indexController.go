@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"net/http"
+	"strings"
 
 	s "github.com/duartqx/ttgowebdd/application/services"
 	v "github.com/duartqx/ttgowebdd/presentation/views"
@@ -36,13 +37,20 @@ func (ic IndexController) Index(w http.ResponseWriter, r *http.Request) {
 		// Recover middleware will catch this panic
 		panic(err)
 	}
-	ic.view.Execute(w, tasks)
+	if err := ic.view.Execute(w, tasks); err != nil {
+		panic(err)
+	}
 }
 
 func (ic IndexController) Filter(w http.ResponseWriter, r *http.Request) {
 	tasks, err := ic.service.GetTasksByFilter(r.Body)
 	if err != nil {
-		panic(err)
+		if strings.HasPrefix("Decode Error:", err.Error()) {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		} else {
+			panic(err)
+		}
 	}
 	if err := ic.view.Execute(w, tasks); err != nil {
 		panic(err)
