@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/duartqx/ttgowebdd/api/router"
@@ -9,7 +10,9 @@ import (
 )
 
 func main() {
-	db, err := sqlite.NewDbConnection("ddclitskt.sqlite")
+	config := GetConfig()
+
+	db, err := sqlite.NewDbConnection(config.dbStr)
 	if err != nil {
 		panic(err)
 	}
@@ -24,11 +27,9 @@ func main() {
 		}).
 		Build()
 
-	port := ":8000"
-
 	srv := &http.Server{
 		Handler:      mux,
-		Addr:         "127.0.0.1" + port,
+		Addr:         config.hostAddr,
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
 	}
@@ -36,4 +37,25 @@ func main() {
 	if err := srv.ListenAndServe(); err != nil {
 		panic(err)
 	}
+}
+
+type Config struct {
+	dbStr    string
+	hostAddr string
+}
+
+func GetConfig() *Config {
+	config := Config{
+		dbStr:    os.Getenv("dbStr"),
+		hostAddr: os.Getenv("hostAddr"),
+	}
+
+	if config.dbStr == "" {
+		panic("Missing dbStr")
+	}
+	if config.hostAddr == "" {
+		panic("Missing hostAddr")
+	}
+
+	return &config
 }
