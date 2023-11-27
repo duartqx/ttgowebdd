@@ -1,33 +1,34 @@
 {{ define "create_form" }}
-  <form
-    id="createForm"
-    hx-post="/tasks"
-    hx-ext="json-enc"
-    hx-target="#tableResultsBody"
-    hx-swap="beforeend"
-    hx-on::after-request="this.reset()"
-  >
-    <div class="mb-3">
-      <label for="tag" class="form-label text-secondary">Tag</label>
-      <input type="text" name="tag" class="form-control" />
-    </div>
-    <div class="mb-3">
-      <label class="form-label text-secondary">Sprint</label>
-      <input type="number" name="sprint" class="form-control" />
-    </div>
-    <div class="mb-3">
-      <label class="form-label text-secondary">Description</label>
-      <input type="text" name="description" class="form-control" />
-    </div>
-    <div class="d-flex">
-      <button class="btn btn-primary">Create</button>
-      <button
-        type="button"
-        class="btn btn-outline-warning ms-auto"
-        @click="htmx.find('#createForm').reset();"
-      >
-        Cancel
-      </button>
-    </div>
-  </form>
+<form
+  id="createForm"
+  hx-post="/tasks"
+  hx-ext="json-enc"
+  hx-target="#tableResultsBody"
+  hx-swap="beforeend"
+  hx-on::after-request="this.reset()"
+  x-data="{ reset() { $el.reset() } }"
+>
+  <div class="mb-3">
+    <label for="tag" class="form-label text-secondary">Tag</label>
+    <input type="text" name="tag" class="form-control" />
+  </div>
+  <div class="mb-3">
+    <label class="form-label text-secondary">Sprint</label>
+    <input type="number" name="sprint" class="form-control" />
+  </div>
+  <div class="mb-3">
+    <label class="form-label text-secondary">Description</label>
+    <input type="text" name="description" class="form-control" />
+  </div>
+  <div class="d-flex">
+    <button class="btn btn-primary">Create</button>
+    <button
+      type="button"
+      class="btn btn-outline-warning ms-auto"
+      @click="reset()"
+    >
+      Cancel
+    </button>
+  </div>
+</form>
 {{ end }}
