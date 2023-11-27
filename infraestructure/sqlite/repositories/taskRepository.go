@@ -25,6 +25,7 @@ func NewTaskRepository(db *sqlx.DB) *TaskRepository {
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			tag TEXT NOT NULL,
 			description TEXT NOT NULL,
+			sprint TEXT DEFAULT NULL,
 			completed BOOL DEFAULT 0,
 			start_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 			end_at DATETIME DEFAULT NULL
@@ -101,8 +102,8 @@ func (tr TaskRepository) Create(task m.Task) error {
 		startAt time.Time
 	)
 	if err := tr.db.QueryRow(
-		"INSERT INTO tasks (tag, description) VALUES (?, ?) RETURNING id, start_at",
-		task.GetTag(), task.GetDescription(),
+		"INSERT INTO tasks (tag, sprint, description) VALUES (?, ?, ?) RETURNING id, start_at",
+		task.GetTag(), task.GetSprint(), task.GetDescription(),
 	).Scan(&taskId, &startAt); err != nil {
 		return err
 	}
