@@ -1,6 +1,4 @@
-<!-- prettier-ignore-start -->
-{{ define "task_results" }}
-<!-- prettier-ignore-end-->
+{{ define "taskResults" }}
 <table class="table table-striped table-hover" id="tableResults">
   <thead>
     <tr>
@@ -13,13 +11,13 @@
     </tr>
   </thead>
   <tbody id="tableResultsBody">
-    {{ range . }} {{ template "task_row" . }} {{ end }}
+    {{ range . }} {{ template "taskRow" . }} {{ end }}
   </tbody>
 </table>
 {{ end }}
 
 <!-- prettier-ignore-start -->
-{{ define "task_row" }}
+{{ define "taskRow" }}
 <!-- prettier-ignore-end-->
 <tr>
   <td class="col-sm-1">{{ .GetTag }}</td>

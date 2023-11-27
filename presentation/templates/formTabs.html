@@ -1,4 +1,4 @@
-{{ define "form_tabs" }}
+{{ define "formTabs" }}
   <div x-data="{
       filter: true,
       activate(target, deactivateFromSelector) {
@@ -25,10 +25,10 @@
     </section>
     <section id="formSections">
       <section id="filterSection" x-show="filter">
-        {{ template "filter_form" }}
+        {{ template "filterForm" }}
       </section>
       <section id="createSection" x-show="!filter">
-        {{ template "create_form" }}
+        {{ template "createForm" }}
       </section>
     </section>
   </div>

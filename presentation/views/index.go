@@ -6,8 +6,8 @@ import (
 )
 
 const (
-	resultsPartial string = "task_results"
-	rowPartial     string = "task_row"
+	resultsPartial string = "taskResults"
+	rowPartial     string = "taskRow"
 	indexPartial   string = "index"
 )
 
