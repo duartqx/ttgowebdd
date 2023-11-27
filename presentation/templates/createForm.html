@@ -1,5 +1,6 @@
 {{ define "create_form" }}
   <form
+    id="createForm"
     hx-post="/tasks"
     hx-ext="json-enc"
     hx-target="#tableResultsBody"
@@ -12,7 +13,7 @@
     </div>
     <div class="mb-3">
       <label class="form-label text-secondary">Sprint</label>
-      <input type="text" name="sprint" class="form-control" />
+      <input type="number" name="sprint" class="form-control" />
     </div>
     <div class="mb-3">
       <label class="form-label text-secondary">Description</label>
@@ -21,9 +22,9 @@
     <div class="d-flex">
       <button class="btn btn-primary">Create</button>
       <button
-        hx-get="/"
-        hx-target="body"
+        type="button"
         class="btn btn-outline-warning ms-auto"
+        @click="htmx.find('#createForm').reset();"
       >
         Cancel
       </button>
