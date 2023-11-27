@@ -18,6 +18,7 @@ const (
 type TaskFilter struct {
 	Tag       string `json:"tag"`
 	Completed int    `json:"completed"`
+	Sprint    string `json:"sprint"`
 
 	FromStartAt *time.Time `json:"from_start_at"`
 	ToStartAt   *time.Time `json:"to_start_at"`
@@ -39,6 +40,7 @@ func (tf *TaskFilter) UnmarshalJSON(data []byte) error {
 	var aux struct {
 		Tag       string `json:"tag"`
 		Completed string `json:"completed"`
+		Sprint    string `json:"sprint"`
 
 		FromStartAt string `json:"from_start_at"`
 		ToStartAt   string `json:"to_start_at"`
@@ -55,7 +57,7 @@ func (tf *TaskFilter) UnmarshalJSON(data []byte) error {
 		return err
 	}
 
-	tf.SetTag(aux.Tag).SetCompleted(completed)
+	tf.SetTag(aux.Tag).SetSprint(aux.Sprint).SetCompleted(completed)
 
 	format := "2006-01-02"
 	target := reflect.ValueOf(tf).Elem()
@@ -82,6 +84,10 @@ func (tf TaskFilter) GetTag() string {
 	return tf.Tag
 }
 
+func (tf TaskFilter) GetSprint() string {
+	return tf.Sprint
+}
+
 func (tf TaskFilter) GetCompleted() int {
 	return tf.Completed
 }
@@ -106,6 +112,12 @@ func (tf *TaskFilter) SetTag(tag string) f.TaskFilter {
 	tf.Tag = tag
 	return tf
 }
+
+func (tf *TaskFilter) SetSprint(sprint string) f.TaskFilter {
+	tf.Sprint = sprint
+	return tf
+}
+
 func (tf *TaskFilter) SetCompleted(completed int) f.TaskFilter {
 	if slices.Contains[[]int](
 		[]int{0, TaskCompleted, TaskNotCompleted}, completed,
@@ -203,6 +215,10 @@ func (tf *TaskFilter) Build() (string, *[]interface{}) {
 	endAtQuery, endAtValues := tf.GetEndAtQuery()
 	if endAtQuery != "" {
 		tf.addToQuery(endAtQuery, *endAtValues...)
+	}
+
+	if tf.GetSprint() != "" {
+		tf.addToQuery("sprint = ?", tf.GetSprint())
 	}
 
 	if tf.query != "" {
