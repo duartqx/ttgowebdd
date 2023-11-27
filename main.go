@@ -1,6 +1,7 @@
 package main
 
 import (
+	"embed"
 	"net/http"
 	"os"
 	"time"
@@ -8,6 +9,9 @@ import (
 	"github.com/duartqx/ttgowebdd/api/router"
 	"github.com/duartqx/ttgowebdd/infraestructure/sqlite"
 )
+
+//go:embed presentation/templates/*
+var tmplFolder embed.FS
 
 func main() {
 	config := GetConfig()
@@ -18,12 +22,9 @@ func main() {
 	}
 	mux := router.NewRouterBuilder().
 		SetDb(db).
+		SetTemplFolder(&tmplFolder).
 		SetTemplates(&[]string{
-			"./presentation/templates/createForm.html",
-			"./presentation/templates/filterForm.html",
-			"./presentation/templates/formTabs.html",
-			"./presentation/templates/index.html",
-			"./presentation/templates/taskTable.html",
+			"presentation/templates/*.html",
 		}).
 		Build()
 

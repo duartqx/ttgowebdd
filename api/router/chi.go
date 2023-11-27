@@ -1,6 +1,7 @@
 package router
 
 import (
+	"embed"
 	"html/template"
 
 	"github.com/go-chi/chi/v5"
@@ -16,8 +17,9 @@ import (
 )
 
 type router struct {
-	db        *sqlx.DB
-	templates *[]string
+	db         *sqlx.DB
+	tmplFolder *embed.FS
+	templates  *[]string
 }
 
 func NewRouterBuilder() *router {
@@ -31,6 +33,11 @@ func (ro *router) SetDb(db *sqlx.DB) *router {
 	return ro
 }
 
+func (ro *router) SetTemplFolder(tmplFolder *embed.FS) *router {
+	ro.tmplFolder = tmplFolder
+	return ro
+}
+
 func (ro *router) SetTemplates(templates *[]string) *router {
 	ro.templates = templates
 	return ro
@@ -38,7 +45,7 @@ func (ro *router) SetTemplates(templates *[]string) *router {
 
 func (ro router) Build() *chi.Mux {
 
-	tmplEngine := template.Must(template.ParseFiles(*ro.templates...))
+	tmplEngine := template.Must(template.ParseFS(*ro.tmplFolder, *ro.templates...))
 	indexView := v.NewIndexView(tmplEngine)
 
 	taskRepository := r.NewTaskRepository(ro.db)
