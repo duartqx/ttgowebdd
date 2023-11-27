@@ -4,7 +4,7 @@
 <table class="table table-striped table-hover" id="tableResults">
   <thead>
     <tr>
-      <td class="col-xs-1 text-center">Tag</td>
+      <td class="col-sm-1 text-center">Tag</td>
       <td class="text-center">Sprint</td>
       <td>Description</td>
       <td>Started at</td>
@@ -22,8 +22,8 @@
 {{ define "task_row" }}
 <!-- prettier-ignore-end-->
 <tr>
-  <td class="col-xs-1">{{ .GetTag }}</td>
-  <td>{{ .GetSprint }}</td>
+  <td class="col-sm-1">{{ .GetTag }}</td>
+  <td class="text-center">{{ .GetSprint }}</td>
   <td>{{ .GetDescription }}</td>
   <td>{{ .GetStartAt.Local.Format "2006-01-02 15:04:05" }}</td>
   <!-- prettier-ignore -->
