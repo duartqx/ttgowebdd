@@ -25,11 +25,11 @@
   <td class="col-xs-1">{{ .GetTag }}</td>
   <td>{{ .GetSprint }}</td>
   <td>{{ .GetDescription }}</td>
-  <td>{{ .GetStartAt.Format "2006-01-02 15:04:05" }}</td>
+  <td>{{ .GetStartAt.Local.Format "2006-01-02 15:04:05" }}</td>
   <!-- prettier-ignore -->
   <td>
     {{ if .GetEndAt }}
-      {{ .GetEndAt.Format "2006-01-02 15:04:05" }}
+      {{ .GetEndAt.Local.Format "2006-01-02 15:04:05" }}
     {{ else }}
       0000-00-00 00:00:00
     {{ end }}
