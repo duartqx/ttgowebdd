@@ -9,6 +9,7 @@ import (
 type TaskEntity struct {
 	Id          int64      `json:"id" db:"id"`
 	Tag         string     `json:"tag" db:"tag"`
+	Sprint      string     `json:"sprint" db:"sprint"`
 	Description string     `json:"description" db:"description"`
 	Completed   bool       `json:"completed" db:"completed"`
 	StartAt     *time.Time `json:"start_at" db:"start_at"`
@@ -21,6 +22,10 @@ func (t TaskEntity) GetId() int64 {
 
 func (t TaskEntity) GetTag() string {
 	return t.Tag
+}
+
+func (t TaskEntity) GetSprint() string {
+	return t.Sprint
 }
 
 func (t TaskEntity) GetDescription() string {
@@ -46,6 +51,11 @@ func (t *TaskEntity) SetId(id int64) m.Task {
 
 func (t *TaskEntity) SetTag(tag string) m.Task {
 	t.Tag = tag
+	return t
+}
+
+func (t *TaskEntity) SetSprint(sprint string) m.Task {
+	t.Sprint = sprint
 	return t
 }
 
