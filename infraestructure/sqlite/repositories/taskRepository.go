@@ -55,7 +55,7 @@ func (tr TaskRepository) Filter(reader io.ReadCloser) (*[]m.Task, error) {
 	where, whereValues := tf.Build()
 
 	rows, err := tr.db.Query(
-		"SELECT id, tag, description, completed, start_at, end_at FROM tasks"+where,
+		"SELECT id, tag, sprint, description, completed, start_at, end_at FROM tasks"+where,
 		*whereValues...,
 	)
 	if err != nil {
@@ -68,7 +68,7 @@ func (tr TaskRepository) Filter(reader io.ReadCloser) (*[]m.Task, error) {
 		task := tr.getModel()
 
 		if err := rows.Scan(
-			&task.Id, &task.Tag, &task.Description, &task.Completed, &task.StartAt, &task.EndAt,
+			&task.Id, &task.Tag, &task.Sprint, &task.Description, &task.Completed, &task.StartAt, &task.EndAt,
 		); err != nil {
 			return nil, err
 		}
