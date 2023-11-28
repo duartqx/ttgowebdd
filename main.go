@@ -40,23 +40,20 @@ func main() {
 	}
 }
 
-type Config struct {
-	dbStr    string
-	hostAddr string
+type config struct {
+	dbStr              string
+	hostAddr           string
+	jiraAuth           string
+	jiraSearchEndpoint string
+	jiraAssignee       string
 }
 
-func GetConfig() *Config {
-	config := Config{
-		dbStr:    os.Getenv("dbStr"),
-		hostAddr: os.Getenv("hostAddr"),
+func GetConfig() *config {
+	return &config{
+		dbStr:              os.Getenv("dbStr"),
+		hostAddr:           os.Getenv("hostAddr"),
+		jiraAuth:           os.Getenv("jiraAuth"),
+		jiraSearchEndpoint: os.Getenv("jiraSearchEndpoint"),
+		jiraAssignee:       os.Getenv("jiraAssignee"),
 	}
-
-	if config.dbStr == "" {
-		panic("Missing dbStr")
-	}
-	if config.hostAddr == "" {
-		panic("Missing hostAddr")
-	}
-
-	return &config
 }
