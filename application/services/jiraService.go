@@ -47,7 +47,7 @@ func (js *JiraService) SetDefaultHeaders() *JiraService {
 	js.headers = &map[string]string{
 		"Accept":        "application/json",
 		"Content-Type":  "application/json",
-		"Authorization": "Basic" + js.base64EncodedAuth,
+		"Authorization": "Basic " + js.base64EncodedAuth,
 	}
 	return js
 }
