@@ -5,6 +5,7 @@
   hx-ext="json-enc"
   hx-target="#tableResults"
   hx-swap="outerHTML"
+  hx-trigger="load delay:0.2s, submit"
   x-data="{
       reset() {
         $el.reset();
@@ -30,7 +31,12 @@
   </div>
   <div class="mb-3 bg-body-tertiary p-2 rounded">
     <label class="form-label text-secondary">Start At</label>
-    <input type="date" name="from_start_at" class="form-control mb-3" />
+    <input
+      type="date"
+      name="from_start_at"
+      class="form-control mb-3"
+      x-bind:value="new Date(new Date().setDate(new Date().getDate() - 1)).toISOString().split('T')[0]"
+    />
     <input type="date" name="to_start_at" class="form-control" />
   </div>
   <div class="mb-3 bg-body-tertiary p-2 rounded">
