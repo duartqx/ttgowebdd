@@ -7,11 +7,54 @@
   hx-swap="outerHTML"
   hx-trigger="load delay:0.2s, submit"
   x-data="{
-      reset() {
-        $el.reset();
-        htmx.trigger($el, 'submit');
+    reset() {
+      $el.reset();
+      htmx.trigger($el, 'submit');
+    },
+    /**
+     * @param {Date} d
+     * @returns {number}
+     */
+    getDelta(d) {
+      /**
+       * @type {number}
+       * @name delta
+       */
+      let delta;
+      switch (d.getDay()) {
+        case 0:
+          delta = 2;
+          break;
+        case 1:
+          delta = 3;
+          break;
+        default:
+          delta = 1;
       }
-    }"
+      return delta;
+    },
+
+    /**
+     * @retuns {string}
+     */
+    getDate() {
+      /**
+       * @type {Date}
+       * @name date
+       */
+      let date = new Date();
+
+      /**
+       * @type {number}
+       * @name delta
+       */
+      let delta = this.getDelta(date);
+
+      return new Date(new Date().setDate(date.getDate() - delta))
+        .toISOString()
+        .split('T')[0];
+    },
+  };"
 >
   <div class="mb-3">
     <label for="tag" class="form-label text-secondary">Tag</label>
@@ -35,7 +78,7 @@
       type="date"
       name="from_start_at"
       class="form-control mb-3"
-      x-bind:value="new Date(new Date().setDate(new Date().getDate() - 1)).toISOString().split('T')[0]"
+      x-bind:value="getDate()"
     />
     <input type="date" name="to_start_at" class="form-control" />
   </div>
