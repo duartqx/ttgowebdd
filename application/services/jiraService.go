@@ -7,11 +7,10 @@ import (
 )
 
 type JiraService struct {
-	base64EncodedAuth string
-	searchEndpoint    string
-	assignee          string
-	headers           *map[string]string
-	jql               *map[string]interface{}
+	auth     string
+	endpoint string
+	headers  *map[string]string
+	jql      *map[string]interface{}
 }
 
 type jiraName struct {
@@ -30,11 +29,14 @@ type jiraResponse struct {
 	} `json:"issues"`
 }
 
-func NewJiraService(auth, endpoint, assignee string) *JiraService {
+func NewJiraService(auth, endpoint, jql string) *JiraService {
 	return &JiraService{
-		base64EncodedAuth: auth,
-		searchEndpoint:    endpoint,
-		assignee:          assignee,
+		auth:     auth,
+		endpoint: endpoint,
+		jql: &map[string]interface{}{
+			"jql":        jql,
+			"maxResults": 20,
+		},
 	}
 }
 
@@ -47,26 +49,13 @@ func (js *JiraService) SetDefaultHeaders() *JiraService {
 	js.headers = &map[string]string{
 		"Accept":        "application/json",
 		"Content-Type":  "application/json",
-		"Authorization": "Basic " + js.base64EncodedAuth,
+		"Authorization": "Basic " + js.auth,
 	}
 	return js
 }
 
 func (js *JiraService) SetJql(jql *map[string]interface{}) *JiraService {
 	js.jql = jql
-	return js
-}
-
-func (js *JiraService) SetDefaultJql() *JiraService {
-
-	js.jql = &map[string]interface{}{
-		"jql": `
-			project = "AJ" and assignee = ` + js.assignee + ` 
-			and status = Open ORDER BY created DESC
-	`,
-		"maxResults": 20,
-	}
-
 	return js
 }
 
@@ -91,7 +80,7 @@ func (js JiraService) Query() (*jiraResponse, error) {
 
 func (js JiraService) post(body *[]byte) (*http.Response, error) {
 	req, err := http.NewRequest(
-		http.MethodPost, js.searchEndpoint, bytes.NewBuffer(*body),
+		http.MethodPost, js.endpoint, bytes.NewBuffer(*body),
 	)
 	if err != nil {
 		return nil, err
