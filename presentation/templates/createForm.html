@@ -5,8 +5,17 @@
   hx-ext="json-enc"
   hx-target="#tableResultsBody"
   hx-swap="beforeend"
-  hx-on::after-request="this.reset()"
-  x-data="{ reset() { $el.reset() } }"
+  hx-on::after-request="
+    const value = htmx.find('#sprint_input').value;
+    console.log('after-request', value)
+    window.dispatchEvent(
+      new CustomEvent('newAvailableSprint', {
+        detail: { sprint: Number(value) }
+      })
+    )
+    this.reset();
+    "
+  x-data="{ reset() { $el.reset() }}"
 >
   <div class="mb-3">
     <label for="tag" class="form-label text-secondary">Tag</label>
@@ -14,7 +23,7 @@
   </div>
   <div class="mb-3">
     <label class="form-label text-secondary">Sprint</label>
-    <input type="number" name="sprint" class="form-control" />
+    <input id="sprint_input" type="number" name="sprint" class="form-control" />
   </div>
   <div class="mb-3">
     <label class="form-label text-secondary">Description</label>

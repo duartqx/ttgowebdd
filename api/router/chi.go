@@ -59,6 +59,7 @@ func (ro router) Build() *chi.Mux {
 	router.Use(rm.RecoveryMiddleware, lm.LoggerMiddleware)
 
 	router.Get("/", indexController.Index)
+	router.Get("/tasks/filter", indexController.FilterForm)
 	router.Post("/tasks/filter", indexController.Filter)
 
 	router.Post("/tasks", taskController.Create)

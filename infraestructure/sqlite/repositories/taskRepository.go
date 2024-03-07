@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -46,12 +45,10 @@ func (tr TaskRepository) GetListOfTaskSprints() *[]string {
 		"SELECT sprint FROM tasks GROUP BY sprint",
 	)
 	if err != nil {
-		log.Println(err)
 		return &sprints
 	}
 	for rows.Next() {
 		if err := rows.Scan(&sprint); err != nil {
-			log.Println(err)
 			return &sprints
 		}
 		sprints = append(sprints, sprint)
@@ -77,15 +74,12 @@ func (tr TaskRepository) Filter(reader io.ReadCloser) (*[]m.Task, error) {
 
 	query := fmt.Sprintf(`SELECT * FROM tasks %s`, where)
 
-	log.Println(query)
-
 	rows, err := tr.db.Queryx(
 		query, *whereValues...,
 	)
 	if err != nil {
 		return nil, err
 	}
-	log.Println(rows, err)
 
 	tasks := []m.Task{}
 
@@ -95,7 +89,6 @@ func (tr TaskRepository) Filter(reader io.ReadCloser) (*[]m.Task, error) {
 		if err := rows.StructScan(task); err != nil {
 			return nil, err
 		}
-		log.Println(task)
 
 		var iTask m.Task = task
 		tasks = append(tasks, iTask)

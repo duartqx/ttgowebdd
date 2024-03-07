@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"io"
-	"log"
 	"net/http"
 	"strings"
 
@@ -36,11 +35,9 @@ func (ic IndexController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (ic IndexController) Index(w http.ResponseWriter, r *http.Request) {
-	sprints := ic.service.GetListOfTaskSprints()
 	data := map[string]interface{}{
-		"Sprints": sprints,
+		"Sprints": strings.Join(*ic.service.GetListOfTaskSprints(), ","),
 	}
-	log.Println(sprints)
 	if err := ic.view.Execute(w, data); err != nil {
 		panic(err)
 	}
@@ -68,6 +65,15 @@ func (ic IndexController) Filter(w http.ResponseWriter, r *http.Request) {
 		"Tasks": tasks,
 	}
 	if err := ic.view.ExecuteResults(w, data); err != nil {
+		panic(err)
+	}
+}
+
+func (ic IndexController) FilterForm(w http.ResponseWriter, r *http.Request) {
+	data := map[string]interface{}{
+		"Sprints": ic.service.GetListOfTaskSprints(),
+	}
+	if err := ic.view.ExecuteFilterForm(w, data); err != nil {
 		panic(err)
 	}
 }

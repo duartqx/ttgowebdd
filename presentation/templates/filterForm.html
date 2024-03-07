@@ -6,6 +6,7 @@
   hx-swap="outerHTML"
   hx-trigger="load delay:0.2s, submit"
   x-data="{
+    availableSprints: [{{ .Sprints }}],
     reset() {
       $el.reset();
       htmx.trigger($el, 'submit');
@@ -51,6 +52,12 @@
       }
     }
   };"
+  x-init="window.addEventListener('newAvailableSprint', event => {
+    const sprint = event.detail.sprint;
+    if (sprint && !availableSprints.includes(sprint)) {
+      availableSprints.push(sprint)
+    }
+  })"
 >
   <div class="mb-3">
     <label for="tag" class="form-label text-secondary">Tag</label>
@@ -68,15 +75,14 @@
     <label for="sprint" class="form-label text-secondary">Sprint</label>
     <div id="sprints"></div>
     <div id="sprints_available" class="form-inline">
-      {{ range .Sprints }}
-      <button
-        @click="addSprint($event)"
-        type="button"
-        class="btn btn-outline-light m-1"
-      >
-        {{ . }}
-      </button>
-      {{ end }}
+      <template x-for="sprint in availableSprints">
+        <button
+          @click="addSprint($event)"
+          x-text="sprint"
+          type="button"
+          class="btn btn-outline-light m-1"
+        ></button>
+      </template>
     </div>
   </div>
   <div class="mb-3 bg-body-tertiary p-2 rounded">

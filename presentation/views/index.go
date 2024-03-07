@@ -7,6 +7,7 @@ import (
 
 const (
 	resultsPartial string = "taskResults"
+	filterForm     string = "filterForm"
 	rowPartial     string = "taskRow"
 	indexPartial   string = "index"
 )
@@ -31,4 +32,8 @@ func (iv IndexView) ExecuteRow(w io.Writer, data interface{}) error {
 
 func (iv IndexView) ExecuteResults(w io.Writer, data interface{}) error {
 	return iv.tmplEngine.ExecuteTemplate(w, resultsPartial, data)
+}
+
+func (iv IndexView) ExecuteFilterForm(w io.Writer, data interface{}) error {
+	return iv.tmplEngine.ExecuteTemplate(w, filterForm, data)
 }
