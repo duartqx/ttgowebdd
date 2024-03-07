@@ -1,6 +1,10 @@
 package controllers
 
 import (
+	"bytes"
+	"encoding/json"
+	"io"
+	"log"
 	"net/http"
 	"strings"
 
@@ -32,13 +36,26 @@ func (ic IndexController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (ic IndexController) Index(w http.ResponseWriter, r *http.Request) {
-	if err := ic.view.Execute(w, nil); err != nil {
+	sprints := ic.service.GetListOfTaskSprints()
+	data := map[string]interface{}{
+		"Sprints": sprints,
+	}
+	log.Println(sprints)
+	if err := ic.view.Execute(w, data); err != nil {
 		panic(err)
 	}
 }
 
 func (ic IndexController) Filter(w http.ResponseWriter, r *http.Request) {
-	tasks, err := ic.service.GetTasksByFilter(r.Body)
+	if err := r.ParseForm(); err != nil {
+		panic(err)
+	}
+	formData, err := json.Marshal(r.Form)
+	if err != nil {
+		panic(err)
+	}
+
+	tasks, err := ic.service.GetTasksByFilter(io.NopCloser(bytes.NewReader(formData)))
 	if err != nil {
 		if strings.HasPrefix(err.Error(), "Decode Error:") {
 			w.WriteHeader(http.StatusBadRequest)
@@ -47,7 +64,10 @@ func (ic IndexController) Filter(w http.ResponseWriter, r *http.Request) {
 			panic(err)
 		}
 	}
-	if err := ic.view.ExecuteResults(w, tasks); err != nil {
+	data := map[string]interface{}{
+		"Tasks": tasks,
+	}
+	if err := ic.view.ExecuteResults(w, data); err != nil {
 		panic(err)
 	}
 }

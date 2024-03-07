@@ -1,5 +1,6 @@
 {{ define "formTabs" }}
-  <div x-data="{
+<div
+  x-data="{
       filter: true,
       activate(target, deactivateFromSelector) {
         htmx.addClass(target, 'active');
@@ -11,9 +12,10 @@
       activateCreateForm(target) {
         this.activate(target, '#filterFormLink'); this.filter = false
       },
-    }">
-    <!-- prettier-ignore -->
-    <section id="tabs">
+    }"
+>
+  <!-- prettier-ignore -->
+  <section id="tabs">
       <ul class="nav nav-tabs mb-3">
         <li class="nav-item" role="tab">
           <a href="#" class="nav-link active" id="filterFormLink" @click="activateFilterForm($event.target)">Filter</a>
@@ -23,13 +25,13 @@
         </li>
       </ul>
     </section>
-    <section id="formSections">
-      <section id="filterSection" x-show="filter">
-        {{ template "filterForm" }}
-      </section>
-      <section id="createSection" x-show="!filter">
-        {{ template "createForm" }}
-      </section>
+  <section id="formSections">
+    <section id="filterSection" x-show="filter">
+      {{ template "filterForm" . }}
     </section>
-  </div>
+    <section id="createSection" x-show="!filter">
+      {{ template "createForm" . }}
+    </section>
+  </section>
+</div>
 {{ end }}

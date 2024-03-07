@@ -19,4 +19,6 @@ type TaskRepository interface {
 
 	UpdateEndAt(task m.Task) error
 	UpdateEndAtById(id int) (m.Task, error)
+
+	GetListOfTaskSprints() *[]string
 }

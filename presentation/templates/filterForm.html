@@ -2,7 +2,6 @@
 <form
   id="filterForm"
   hx-post="/tasks/filter"
-  hx-ext="json-enc"
   hx-target="#tableResults"
   hx-swap="outerHTML"
   hx-trigger="load delay:0.2s, submit"
@@ -11,15 +10,7 @@
       $el.reset();
       htmx.trigger($el, 'submit');
     },
-    /**
-     * @param {Date} d
-     * @returns {number}
-     */
     getDelta(d) {
-      /**
-       * @type {number}
-       * @name delta
-       */
       let delta;
       switch (d.getDay()) {
         case 0:
@@ -34,26 +25,31 @@
       return delta;
     },
 
-    /**
-     * @retuns {string}
-     */
     getDate() {
-      /**
-       * @type {Date}
-       * @name date
-       */
       let date = new Date();
 
-      /**
-       * @type {number}
-       * @name delta
-       */
       let delta = this.getDelta(date);
 
       return new Date(new Date().setDate(date.getDate() - delta))
         .toISOString()
         .split('T')[0];
     },
+    
+    addSprint($event) {
+      const target = $event.target;
+      target.classList.toggle('btn-outline-light');
+      target.classList.toggle('btn-light');
+
+      const value = target.innerText.trim();
+      
+      const hasInput = htmx.find(`#sprints > input[value='${value}']`);
+      if (hasInput) {
+        hasInput.remove()
+      } else {
+        const sprints = htmx.find('#sprints');
+        sprints.innerHTML += `<input value='${value}' name='sprint' type='hidden' />`
+      }
+    }
   };"
 >
   <div class="mb-3">
@@ -70,16 +66,22 @@
   </div>
   <div class="mb-3">
     <label for="sprint" class="form-label text-secondary">Sprint</label>
-    <input type="number" name="sprint" class="form-control" />
+    <div id="sprints"></div>
+    <div id="sprints_available" class="form-inline">
+      {{ range .Sprints }}
+      <button
+        @click="addSprint($event)"
+        type="button"
+        class="btn btn-outline-light m-1"
+      >
+        {{ . }}
+      </button>
+      {{ end }}
+    </div>
   </div>
   <div class="mb-3 bg-body-tertiary p-2 rounded">
     <label class="form-label text-secondary">Start At</label>
-    <input
-      type="date"
-      name="from_start_at"
-      class="form-control mb-3"
-      x-bind:value="getDate()"
-    />
+    <input type="date" name="from_start_at" class="form-control mb-3" />
     <input type="date" name="to_start_at" class="form-control" />
   </div>
   <div class="mb-3 bg-body-tertiary p-2 rounded">

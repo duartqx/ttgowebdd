@@ -16,7 +16,6 @@
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css"
     />
     <script src="https://unpkg.com/htmx.org@1.9.9"></script>
-    <script src="https://unpkg.com/htmx.org/dist/ext/json-enc.js"></script>
     <script src="https://unpkg.com/alpinejs" defer></script>
   </head>
   <body>
@@ -26,9 +25,7 @@
       </div>
       <div class="col-sm-12">
         <div class="row">
-          <div class="col-sm-3">
-            {{ template "formTabs" }}
-          </div>
+          <div class="col-sm-3">{{ template "formTabs" . }}</div>
           <!-- prettier-ignore -->
           <section id="tableSection" class="col-sm-9" style="height: 80vh; overflow-y: auto">
             {{ template "taskResults" . }}

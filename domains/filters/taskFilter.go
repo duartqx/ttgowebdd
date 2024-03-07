@@ -5,14 +5,14 @@ import "time"
 type TaskFilter interface {
 	GetTag() string
 	GetCompleted() int
-	GetSprint() string
+	GetSprints() []int
 	GetFromStartAt() *time.Time
 	GetToStartAt() *time.Time
 	GetFromEndAt() *time.Time
 	GetToEndAt() *time.Time
 
 	SetTag(tag string) TaskFilter
-	SetSprint(sprint string) TaskFilter
+	SetSprint(sprint []int) TaskFilter
 	SetCompleted(completed int) TaskFilter
 	SetFromStartAt(from *time.Time) TaskFilter
 	SetToStartAt(to *time.Time) TaskFilter

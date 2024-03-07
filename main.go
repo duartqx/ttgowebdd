@@ -50,8 +50,10 @@ type config struct {
 
 func GetConfig() *config {
 	return &config{
-		dbStr:              os.Getenv("dbStr"),
-		hostAddr:           os.Getenv("hostAddr"),
+		//dbStr:              os.Getenv("dbStr"),
+		//hostAddr:           os.Getenv("hostAddr"),
+		dbStr:              "./ddclitskt.sqlite",
+		hostAddr:           "127.0.0.1:8000",
 		jiraAuth:           os.Getenv("jiraAuth"),
 		jiraSearchEndpoint: os.Getenv("jiraSearchEndpoint"),
 		jiraAssignee:       os.Getenv("jiraAssignee"),

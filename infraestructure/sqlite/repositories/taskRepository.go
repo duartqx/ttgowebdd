@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -38,6 +39,26 @@ func (tr TaskRepository) getModel() *t.TaskEntity {
 	return &t.TaskEntity{}
 }
 
+func (tr TaskRepository) GetListOfTaskSprints() *[]string {
+	var sprint string
+	sprints := []string{}
+	rows, err := tr.db.Queryx(
+		"SELECT sprint FROM tasks GROUP BY sprint",
+	)
+	if err != nil {
+		log.Println(err)
+		return &sprints
+	}
+	for rows.Next() {
+		if err := rows.Scan(&sprint); err != nil {
+			log.Println(err)
+			return &sprints
+		}
+		sprints = append(sprints, sprint)
+	}
+	return &sprints
+}
+
 func (tr TaskRepository) Filter(reader io.ReadCloser) (*[]m.Task, error) {
 
 	tf := f.NewTaskFilter()
@@ -54,24 +75,27 @@ func (tr TaskRepository) Filter(reader io.ReadCloser) (*[]m.Task, error) {
 
 	where, whereValues := tf.Build()
 
-	rows, err := tr.db.Query(
-		"SELECT id, tag, sprint, description, completed, start_at, end_at FROM tasks"+where,
-		*whereValues...,
+	query := fmt.Sprintf(`SELECT * FROM tasks %s`, where)
+
+	log.Println(query)
+
+	rows, err := tr.db.Queryx(
+		query, *whereValues...,
 	)
 	if err != nil {
 		return nil, err
 	}
+	log.Println(rows, err)
 
 	tasks := []m.Task{}
 
 	for rows.Next() {
 		task := tr.getModel()
 
-		if err := rows.Scan(
-			&task.Id, &task.Tag, &task.Sprint, &task.Description, &task.Completed, &task.StartAt, &task.EndAt,
-		); err != nil {
+		if err := rows.StructScan(task); err != nil {
 			return nil, err
 		}
+		log.Println(task)
 
 		var iTask m.Task = task
 		tasks = append(tasks, iTask)
@@ -82,7 +106,9 @@ func (tr TaskRepository) Filter(reader io.ReadCloser) (*[]m.Task, error) {
 
 func (tr TaskRepository) FindById(id int64) (m.Task, error) {
 	task := tr.getModel()
-	if err := tr.db.Get(task, "SELECT * FROM tasks WHERE id = ? LIMIT 1", id); err != nil {
+	if err := tr.db.Get(
+		task, "SELECT * FROM tasks WHERE id = ? LIMIT 1", id,
+	); err != nil {
 		return nil, err
 	}
 	return task, nil
@@ -90,7 +116,9 @@ func (tr TaskRepository) FindById(id int64) (m.Task, error) {
 
 func (tr TaskRepository) FindByTag(tag string) (m.Task, error) {
 	task := tr.getModel()
-	if err := tr.db.Get(task, "SELECT * FROM tasks WHERE tag = ? LIMIT 1", tag); err != nil {
+	if err := tr.db.Get(
+		task, "SELECT * FROM tasks WHERE tag = ? LIMIT 1", tag,
+	); err != nil {
 		return nil, err
 	}
 	return task, nil
@@ -102,7 +130,11 @@ func (tr TaskRepository) Create(task m.Task) error {
 		startAt time.Time
 	)
 	if err := tr.db.QueryRow(
-		"INSERT INTO tasks (tag, sprint, description) VALUES (?, ?, ?) RETURNING id, start_at",
+		`
+		INSERT INTO tasks (tag, sprint, description)
+		VALUES (?, ?, ?)
+		RETURNING id, start_at
+		`,
 		task.GetTag(), task.GetSprint(), task.GetDescription(),
 	).Scan(&taskId, &startAt); err != nil {
 		return err
@@ -123,10 +155,12 @@ func (tr TaskRepository) Complete(task m.Task) error {
 
 	if err := tr.db.Get(
 		&endAt,
-		`UPDATE tasks SET
+		`
+		UPDATE tasks SET
 		completed = CASE WHEN completed = 1 THEN 0 ELSE 1 END,
 		end_at = CASE WHEN completed = 1 THEN NULL ELSE CURRENT_TIMESTAMP END
-		WHERE id = ?`,
+		WHERE id = ?
+		`,
 		task.GetId(),
 	); err != nil {
 		return err
@@ -143,11 +177,13 @@ func (tr TaskRepository) CompleteById(id int) (m.Task, error) {
 
 	if err := tr.db.Get(
 		task,
-		`UPDATE tasks SET
+		`
+		UPDATE tasks SET
 		completed = CASE WHEN completed = 1 THEN 0 ELSE 1 END,
 		end_at = CASE WHEN completed = 1 THEN NULL ELSE CURRENT_TIMESTAMP END
 		WHERE id = ?
-		RETURNING *`,
+		RETURNING *
+		`,
 		id,
 	); err != nil {
 		return nil, err

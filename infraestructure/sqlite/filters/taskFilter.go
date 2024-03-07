@@ -2,9 +2,11 @@ package filters
 
 import (
 	"encoding/json"
+	"fmt"
 	"reflect"
 	"slices"
 	"strconv"
+	"strings"
 	"time"
 
 	f "github.com/duartqx/ttgowebdd/domains/filters"
@@ -18,7 +20,7 @@ const (
 type TaskFilter struct {
 	Tag       string `json:"tag"`
 	Completed int    `json:"completed"`
-	Sprint    string `json:"sprint"`
+	Sprint    []int  `json:"sprint"`
 
 	FromStartAt *time.Time `json:"from_start_at"`
 	ToStartAt   *time.Time `json:"to_start_at"`
@@ -38,30 +40,64 @@ func NewTaskFilter() *TaskFilter {
 
 func (tf *TaskFilter) UnmarshalJSON(data []byte) error {
 	var aux struct {
-		Tag       string `json:"tag"`
-		Completed string `json:"completed"`
-		Sprint    string `json:"sprint"`
+		Tag       []string `json:"tag"`
+		Completed []string `json:"completed"`
+		Sprint    []string `json:"sprint"`
 
-		FromStartAt string `json:"from_start_at"`
-		ToStartAt   string `json:"to_start_at"`
+		FromStartAt []string `json:"from_start_at"`
+		ToStartAt   []string `json:"to_start_at"`
 
-		FromEndAt string `json:"from_end_at"`
-		ToEndAt   string `json:"to_end_at"`
+		FromEndAt []string `json:"from_end_at"`
+		ToEndAt   []string `json:"to_end_at"`
 	}
+
 	if err := json.Unmarshal(data, &aux); err != nil {
 		return err
 	}
 
-	completed, err := strconv.Atoi(aux.Completed)
-	if err != nil {
-		return err
+	var sprints []int
+	for _, s := range aux.Sprint {
+		if si, err := strconv.Atoi(s); err == nil {
+			sprints = append(sprints, si)
+		}
+	}
+	tf.SetSprint(sprints)
+
+	if len(aux.Tag) != 0 {
+		tf.SetTag(aux.Tag[0])
 	}
 
-	tf.SetTag(aux.Tag).SetSprint(aux.Sprint).SetCompleted(completed)
+	if len(aux.Completed) != 0 {
+		completed, err := strconv.Atoi(aux.Completed[0])
+		if err != nil {
+			return err
+		}
+		tf.SetCompleted(completed)
+	}
+
+	reflectSource := struct {
+		FromStartAt string
+		ToStartAt   string
+		FromEndAt   string
+		ToEndAt     string
+	}{}
+
+	if len(aux.FromStartAt) != 0 {
+		reflectSource.FromStartAt = aux.FromStartAt[0]
+	}
+	if len(aux.ToStartAt) != 0 {
+		reflectSource.ToStartAt = aux.ToStartAt[0]
+	}
+	if len(aux.FromEndAt) != 0 {
+		reflectSource.FromEndAt = aux.FromEndAt[0]
+	}
+	if len(aux.ToEndAt) != 0 {
+		reflectSource.ToEndAt = aux.ToEndAt[0]
+	}
 
 	format := "2006-01-02"
 	target := reflect.ValueOf(tf).Elem()
-	source := reflect.ValueOf(aux)
+	source := reflect.ValueOf(reflectSource)
 	for _, field := range []string{"FromStartAt", "ToStartAt", "FromEndAt", "ToEndAt"} {
 		value := source.FieldByName(field).String()
 		if value != "" {
@@ -84,7 +120,7 @@ func (tf TaskFilter) GetTag() string {
 	return tf.Tag
 }
 
-func (tf TaskFilter) GetSprint() string {
+func (tf TaskFilter) GetSprints() []int {
 	return tf.Sprint
 }
 
@@ -113,7 +149,7 @@ func (tf *TaskFilter) SetTag(tag string) f.TaskFilter {
 	return tf
 }
 
-func (tf *TaskFilter) SetSprint(sprint string) f.TaskFilter {
+func (tf *TaskFilter) SetSprint(sprint []int) f.TaskFilter {
 	tf.Sprint = sprint
 	return tf
 }
@@ -217,8 +253,19 @@ func (tf *TaskFilter) Build() (string, *[]interface{}) {
 		tf.addToQuery(endAtQuery, *endAtValues...)
 	}
 
-	if tf.GetSprint() != "" {
-		tf.addToQuery("sprint = ?", tf.GetSprint())
+	// Sprints
+	sprintLen := len(tf.GetSprints())
+	if sprintLen != 0 {
+		var sprints []interface{}
+		for _, s := range tf.GetSprints() {
+			sprints = append(sprints, s)
+		}
+		var placeholder string
+		for range sprintLen {
+			placeholder += "?,"
+		}
+		placeholder, _ = strings.CutSuffix(placeholder, ",")
+		tf.addToQuery(fmt.Sprintf("sprint IN (%s)", placeholder), sprints...)
 	}
 
 	if tf.query != "" {

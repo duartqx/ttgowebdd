@@ -23,6 +23,10 @@ func (ts TaskService) GetTasksByFilter(reader io.ReadCloser) (*[]m.Task, error) 
 	return ts.repo.Filter(reader)
 }
 
+func (ts TaskService) GetListOfTaskSprints() *[]string {
+	return ts.repo.GetListOfTaskSprints()
+}
+
 func (ts TaskService) Create(reader io.ReadCloser) (m.Task, error) {
 	var task t.TaskEntity
 	if err := json.NewDecoder(reader).Decode(&task); err != nil {
