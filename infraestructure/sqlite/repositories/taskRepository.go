@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/jmoiron/sqlx"
-	_ "github.com/mattn/go-sqlite3"
+	_ "github.com/tursodatabase/libsql-client-go/libsql"
 
 	t "github.com/duartqx/ttgowebdd/domains/entities/task"
 	m "github.com/duartqx/ttgowebdd/domains/models"
@@ -20,17 +20,6 @@ type TaskRepository struct {
 }
 
 func NewTaskRepository(db *sqlx.DB) *TaskRepository {
-	db.MustExec(`
-		CREATE TABLE IF NOT EXISTS tasks (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			tag TEXT NOT NULL,
-			description TEXT NOT NULL,
-			sprint TEXT DEFAULT NULL,
-			completed BOOL DEFAULT 0,
-			start_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-			end_at DATETIME DEFAULT NULL
-		)
-	`)
 	return &TaskRepository{db: db}
 }
 
@@ -124,11 +113,11 @@ func (tr TaskRepository) Create(task m.Task) error {
 	)
 	if err := tr.db.QueryRow(
 		`
-		INSERT INTO tasks (tag, sprint, description)
-		VALUES (?, ?, ?)
+		INSERT INTO tasks (tag, sprint, description, user_id)
+		VALUES (?, ?, ?, ?)
 		RETURNING id, start_at
 		`,
-		task.GetTag(), task.GetSprint(), task.GetDescription(),
+		task.GetTag(), task.GetSprint(), task.GetDescription(), 1,
 	).Scan(&taskId, &startAt); err != nil {
 		return err
 	}

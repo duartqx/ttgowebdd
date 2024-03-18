@@ -14,6 +14,7 @@ type TaskEntity struct {
 	Completed   bool       `json:"completed" db:"completed"`
 	StartAt     *time.Time `json:"start_at" db:"start_at"`
 	EndAt       *time.Time `json:"end_at" db:"end_at"`
+	UserId      int        `json:"-" db:"user_id"`
 }
 
 func (t TaskEntity) GetId() int64 {

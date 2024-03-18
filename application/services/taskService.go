@@ -3,6 +3,7 @@ package services
 import (
 	"encoding/json"
 	"io"
+	"log"
 
 	t "github.com/duartqx/ttgowebdd/domains/entities/task"
 	m "github.com/duartqx/ttgowebdd/domains/models"
@@ -30,6 +31,7 @@ func (ts TaskService) GetListOfTaskSprints() *[]string {
 func (ts TaskService) Create(reader io.ReadCloser) (m.Task, error) {
 	var task t.TaskEntity
 	if err := json.NewDecoder(reader).Decode(&task); err != nil {
+		log.Println(err)
 		return nil, err
 	}
 	return &task, ts.repo.Create(&task)
